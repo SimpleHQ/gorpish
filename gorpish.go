@@ -2,10 +2,45 @@ package gorpish
 
 import (
 	"database/sql"
+	"database/sql/driver"
 
 	"github.com/stretchr/testify/mock"
+
 	"gopkg.in/gorp.v1"
 )
+
+// IDB is an interface to the database structure
+type IDB interface {
+	Begin() (ITX, error)
+}
+
+// ITX is an interface to the transaction structure
+type ITX interface {
+	Insert(...interface{}) error
+	driver.Tx
+}
+
+// DB is our database type
+type DB struct {
+	IDB
+	*gorp.DbMap
+}
+
+// TX is our transaction type
+type TX struct {
+	*gorp.Transaction
+}
+
+// Begin will return an instance of ITX
+func (db *DB) Begin() (ITX, error) {
+	var tx TX
+	gorpTx, err := db.DbMap.Begin()
+	if err != nil {
+		return nil, err
+	}
+	tx.Transaction = gorpTx
+	return &tx, nil
+}
 
 // TestDB is our test database.
 // It is mockable, and implements DB
