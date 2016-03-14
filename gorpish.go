@@ -19,6 +19,8 @@ type IDB interface {
 // ITX is an interface to the transaction structure
 type ITX interface {
 	Insert(...interface{}) error
+	Get(interface{}, ...interface{}) (interface{}, error)
+	Select(interface{}, string, ...interface{}) ([]interface{}, error)
 	driver.Tx
 }
 
