@@ -1,3 +1,5 @@
+// Package gorpish provides mockable interfaces to gorp
+// databases and transactions.
 package gorpish
 
 import (
