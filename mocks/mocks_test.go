@@ -8,6 +8,16 @@ import (
 	"github.com/simplehq/gorpish/mocks"
 )
 
+// OtherTestDB embeds our TestDB.
+type OtherTestDB struct {
+	*mocks.TestDB
+}
+
+func (odb *OtherTestDB) Select(i interface{}, query string, selectArgs ...interface{}) ([]interface{}, error) {
+	args := odb.Called(i, query, selectArgs)
+	return args.Get(0).([]interface{}), args.Error(1)
+}
+
 var db *mocks.TestDB
 
 func init() {
@@ -112,4 +122,18 @@ func TestStmtExec(t *testing.T) {
 	}
 
 	stmt.AssertExpectations(t)
+}
+
+func TestOtherDB(t *testing.T) {
+	db2 := &OtherTestDB{TestDB: db}
+
+	args := []interface{}{
+		3,
+	}
+
+	db2.On("Select", 1, "test", args).Return([]interface{}{}, nil)
+
+	db2.Select(1, "test", args...)
+
+	db2.AssertExpectations(t)
 }

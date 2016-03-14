@@ -37,3 +37,17 @@ func TestInsert(t *testing.T) {
     db.AssertExpectations(t)
 }
 ```
+
+If you wish to mock other methods, it's simple:
+
+```Go
+import "github.com/simplehq/gorpish/mocks"
+
+type MyTestDB struct {
+    *mocks.TestDB
+}
+
+func (db *MyTestDB) Select(i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+    // Mock it out.
+}
+```
