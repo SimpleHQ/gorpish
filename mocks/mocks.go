@@ -71,13 +71,9 @@ func NewTestDB() *TestDB {
 
 	gorpMap := &gorp.DbMap{Db: sqlDb, Dialect: gorp.PostgresDialect{}}
 
-	newDB := new(gorpish.DB)
-	newDB.DbMap = gorpMap
+	newDB := &gorpish.DB{DbMap: gorpMap}
 
-	db := new(TestDB)
-	db.DB = newDB
-
-	return db
+	return &TestDB{DB: newDB}
 }
 
 // TestResult gives us a simple struct to use when expecting results.
@@ -88,23 +84,15 @@ type TestResult struct {
 // NewTestTX will create a empty transaction
 // ready for testing.
 func NewTestTX() *TestTX {
-	tx := new(gorpish.TX)
-	tx.Transaction = &gorp.Transaction{}
+	tx := &gorpish.TX{Transaction: &gorp.Transaction{}}
 
-	testTx := new(TestTX)
-	testTx.TX = tx
-
-	return testTx
+	return &TestTX{TX: tx}
 }
 
 // NewTestStmt will create a empty Stmt
 // ready for testing.
 func NewTestStmt() *TestStmt {
-	stmt := new(gorpish.Stmt)
-	stmt.Stmt = &sql.Stmt{}
+	stmt := &gorpish.Stmt{Stmt: &sql.Stmt{}}
 
-	testStmt := new(TestStmt)
-	testStmt.Stmt = stmt
-
-	return testStmt
+	return &TestStmt{Stmt: stmt}
 }
