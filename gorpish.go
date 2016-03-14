@@ -6,27 +6,25 @@ import (
 	"database/sql"
 	"database/sql/driver"
 
-	"github.com/stretchr/testify/mock"
-
 	"gopkg.in/gorp.v1"
 )
 
-// IDB is an interface to the database structure
-type IDB interface {
-	Begin() (ITX, error)
-}
-
 // ITX is an interface to the transaction structure
 type ITX interface {
-	Insert(...interface{}) error
-	Get(interface{}, ...interface{}) (interface{}, error)
-	Select(interface{}, string, ...interface{}) ([]interface{}, error)
+	gorp.SqlExecutor
 	driver.Tx
+}
+
+// IStmt is an interface to be used with testing statements
+type IStmt interface {
+	Close() error
+	Exec(args ...interface{}) (sql.Result, error)
+	Query(args ...interface{}) (*sql.Rows, error)
+	QueryRow(args ...interface{}) *sql.Row
 }
 
 // DB is our database type
 type DB struct {
-	IDB
 	*gorp.DbMap
 }
 
@@ -35,79 +33,40 @@ type TX struct {
 	*gorp.Transaction
 }
 
+// Stmt is our statement type
+type Stmt struct {
+	*sql.Stmt
+}
+
 // Begin will return an instance of ITX
 func (db *DB) Begin() (ITX, error) {
-	var tx TX
+	var tx *TX
 	gorpTx, err := db.DbMap.Begin()
 	if err != nil {
-		return nil, err
+		return tx, err
 	}
 	tx.Transaction = gorpTx
-	return &tx, nil
+	return tx, nil
 }
 
-// TestDB is our test database.
-// It is mockable, and implements DB
-type TestDB struct {
-	mock.Mock
-	*DB
+// Prepare will return an instance of Stmt for the database.
+func (db *DB) Prepare(query string) (IStmt, error) {
+	var stmt *Stmt
+	sqlStmt, err := db.DbMap.Prepare(query)
+	if err != nil {
+		return stmt, err
+	}
+	stmt.Stmt = sqlStmt
+	return stmt, nil
 }
 
-// Begin implements the IDB Begin method.
-func (db *TestDB) Begin() (ITX, error) {
-	args := db.Called()
-	return args.Get(0).(ITX), args.Error(1)
-}
-
-// TestTransaction is our test transaction.
-// It is mockable and implements TX
-type TestTransaction struct {
-	mock.Mock
-	*TX
-}
-
-// Insert implements ITX Insert method.
-func (tx *TestTransaction) Insert(list ...interface{}) error {
-	args := tx.Called(list...)
-	return args.Error(0)
-}
-
-// Rollback implements the ITX Rollback method.
-func (tx *TestTransaction) Rollback() error {
-	args := tx.Called()
-	return args.Error(0)
-}
-
-// Commit implements the ITX Commit method.
-func (tx *TestTransaction) Commit() error {
-	args := tx.Called()
-	return args.Error(0)
-}
-
-// NewTestDB will create a new test database.
-func NewTestDB() *TestDB {
-	sqlDb, _ := sql.Open("testdb", "")
-
-	gorpMap := &gorp.DbMap{Db: sqlDb, Dialect: gorp.PostgresDialect{}}
-
-	newDB := new(DB)
-	newDB.IDB = newDB
-	newDB.DbMap = gorpMap
-
-	db := new(TestDB)
-	db.DB = newDB
-
-	return db
-}
-
-// NewTestTransaction will create a empty transaction
-// ready for testing.
-func NewTestTransaction() *TestTransaction {
-	tx := new(TX)
-	tx.Transaction = &gorp.Transaction{}
-
-	testTx := new(TestTransaction)
-	testTx.TX = tx
-
-	return testTx
+// Prepare will return an instance of Stmt for the transaction.
+func (tx *TX) Prepare(query string) (IStmt, error) {
+	var stmt *Stmt
+	sqlStmt, err := tx.Transaction.Prepare(query)
+	if err != nil {
+		return stmt, err
+	}
+	stmt.Stmt = sqlStmt
+	return stmt, nil
 }

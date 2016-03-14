@@ -1,21 +1,21 @@
-package gorpish_test
+package mocks_test
 
 import (
 	"errors"
 	"testing"
 
 	_ "github.com/erikstmartin/go-testdb"
-	"github.com/simplehq/gorpish"
+	"github.com/simplehq/gorpish/mocks"
 )
 
-var db *gorpish.TestDB
+var db *mocks.TestDB
 
 func init() {
-	db = gorpish.NewTestDB()
+	db = mocks.NewTestDB()
 }
 
 func TestBeginCalled(t *testing.T) {
-	tx := gorpish.NewTestTransaction()
+	tx := mocks.NewTestTX()
 
 	db.On("Begin").Return(tx, nil).Once()
 
@@ -32,7 +32,7 @@ func TestBeginCalled(t *testing.T) {
 }
 
 func TestInsertCalledReturnsErrorAndRollback(t *testing.T) {
-	tx := gorpish.NewTestTransaction()
+	tx := mocks.NewTestTX()
 
 	tx.On("Insert", "random").Return(errors.New("Did not work"))
 	tx.On("Rollback").Return(nil).Once()
@@ -51,7 +51,7 @@ func TestInsertCalledReturnsErrorAndRollback(t *testing.T) {
 }
 
 func TestOKInsertDoesCommit(t *testing.T) {
-	tx := gorpish.NewTestTransaction()
+	tx := mocks.NewTestTX()
 
 	tx.On("Insert", "random").Return(nil)
 	tx.On("Commit").Return(nil).Once()
@@ -67,4 +67,38 @@ func TestOKInsertDoesCommit(t *testing.T) {
 	}
 
 	tx.AssertExpectations(t)
+}
+
+func TestDbPrepare(t *testing.T) {
+	stmt := mocks.NewTestStmt()
+	query := "SELECT * FROM this"
+
+	db.On("Prepare", query).Return(stmt, nil)
+
+	newStmt, err := db.Prepare(query)
+	if err != nil {
+		t.Error("Prepare error should be nil.")
+	}
+	if newStmt == nil {
+		t.Error("Prepare statement should not be nil.")
+	}
+
+	db.AssertExpectations(t)
+}
+
+func TestStmtExec(t *testing.T) {
+	result := mocks.TestResult{}
+	stmt := mocks.NewTestStmt()
+
+	stmt.On("Exec", 1).Return(result, nil)
+
+	newResult, err := stmt.Exec(1)
+	if err != nil {
+		t.Error("Exec error should be nil.")
+	}
+	if _, ok := newResult.(mocks.TestResult); !ok {
+		t.Error("Exec result is not of type mocks.TestResult")
+	}
+
+	stmt.AssertExpectations(t)
 }
