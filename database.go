@@ -1,4 +1,4 @@
-package gorper
+package gorpish
 
 import (
 	"database/sql/driver"

@@ -1,7 +1,10 @@
-package gorper
+package gorpish
 
 import (
+	"database/sql"
+
 	"github.com/stretchr/testify/mock"
+	"gopkg.in/gorp.v1"
 )
 
 // TestDB is our test database.
@@ -40,4 +43,32 @@ func (tx *TestTransaction) Rollback() error {
 func (tx *TestTransaction) Commit() error {
 	args := tx.Called()
 	return args.Error(0)
+}
+
+// NewTestDB will create a new test database.
+func NewTestDB() *TestDB {
+	sqlDb, _ := sql.Open("testdb", "")
+
+	gorpMap := &gorp.DbMap{Db: sqlDb, Dialect: gorp.PostgresDialect{}}
+
+	newDB := new(DB)
+	newDB.IDB = newDB
+	newDB.DbMap = gorpMap
+
+	db := new(TestDB)
+	db.DB = newDB
+
+	return db
+}
+
+// NewTestTransaction will create a empty transaction
+// ready for testing.
+func NewTestTransaction() *TestTransaction {
+	tx := new(TX)
+	tx.Transaction = &gorp.Transaction{}
+
+	testTx := new(TestTransaction)
+	testTx.TX = tx
+
+	return testTx
 }
