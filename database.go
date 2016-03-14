@@ -6,7 +6,7 @@ import (
 	"gopkg.in/gorp.v1"
 )
 
-// IDB is an interface to the databse structure
+// IDB is an interface to the database structure
 type IDB interface {
 	Begin() (ITX, error)
 }
@@ -17,7 +17,7 @@ type ITX interface {
 	driver.Tx
 }
 
-// DB is our databse type
+// DB is our database type
 type DB struct {
 	IDB
 	*gorp.DbMap
