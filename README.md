@@ -21,7 +21,7 @@ db := NewDB()
 
 Some basic mocked objects are available in the `mocks` package. You can embed them and mock further methods using the api found at https://github.com/stretchr/testify/mock.
 
-```
+```Go
 import (
     "testing"
     "github.com/simplehq/gorpish/mocks"

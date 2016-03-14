@@ -14,6 +14,8 @@ func init() {
 	db = mocks.NewTestDB()
 }
 
+// TestBeginCalled will assert Begin was called
+// on the TestDB.
 func TestBeginCalled(t *testing.T) {
 	tx := mocks.NewTestTX()
 
@@ -31,6 +33,9 @@ func TestBeginCalled(t *testing.T) {
 	db.AssertExpectations(t)
 }
 
+// TestInsertCalledReturnsErrorAndRollback will assert
+// that Insert returns and error and calls Rollback
+// on the TestTx.
 func TestInsertCalledReturnsErrorAndRollback(t *testing.T) {
 	tx := mocks.NewTestTX()
 
@@ -50,6 +55,8 @@ func TestInsertCalledReturnsErrorAndRollback(t *testing.T) {
 	tx.AssertExpectations(t)
 }
 
+// TestOKInsertDoesCommit will assert that a
+// successful Insert will Commit the TestTx.
 func TestOKInsertDoesCommit(t *testing.T) {
 	tx := mocks.NewTestTX()
 
@@ -69,6 +76,8 @@ func TestOKInsertDoesCommit(t *testing.T) {
 	tx.AssertExpectations(t)
 }
 
+// TestDbPrepare will assert that Prepare
+// returns a TestStmt from the TestDB.
 func TestDbPrepare(t *testing.T) {
 	stmt := mocks.NewTestStmt()
 	query := "SELECT * FROM this"
@@ -86,6 +95,8 @@ func TestDbPrepare(t *testing.T) {
 	db.AssertExpectations(t)
 }
 
+// TestStmtExec will assert that Exec
+// is called on the TestStmt.
 func TestStmtExec(t *testing.T) {
 	result := mocks.TestResult{}
 	stmt := mocks.NewTestStmt()
