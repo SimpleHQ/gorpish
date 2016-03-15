@@ -9,6 +9,11 @@ import (
 	"gopkg.in/gorp.v1"
 )
 
+type IDB interface {
+	Begin() (ITX, error)
+	gorp.SqlExecutor
+}
+
 // ITX is an interface to the transaction structure
 type ITX interface {
 	gorp.SqlExecutor
