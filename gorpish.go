@@ -45,7 +45,7 @@ type Stmt struct {
 
 // Begin will return an instance of ITX
 func (db *DB) Begin() (ITX, error) {
-	var tx *TX
+	tx := new(TX)
 	gorpTx, err := db.DbMap.Begin()
 	if err != nil {
 		return tx, err
@@ -56,7 +56,7 @@ func (db *DB) Begin() (ITX, error) {
 
 // Prepare will return an instance of Stmt for the database.
 func (db *DB) Prepare(query string) (IStmt, error) {
-	var stmt *Stmt
+	stmt := new(Stmt)
 	sqlStmt, err := db.DbMap.Prepare(query)
 	if err != nil {
 		return stmt, err

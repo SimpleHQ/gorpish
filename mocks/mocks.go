@@ -66,10 +66,10 @@ func (stmt *TestStmt) Exec(execArgs ...interface{}) (sql.Result, error) {
 }
 
 // NewTestDB will create a new test database.
-func NewTestDB() *TestDB {
+func NewTestDB(dialect gorp.Dialect) *TestDB {
 	sqlDb, _ := sql.Open("testdb", "")
 
-	gorpMap := &gorp.DbMap{Db: sqlDb, Dialect: gorp.PostgresDialect{}}
+	gorpMap := &gorp.DbMap{Db: sqlDb, Dialect: dialect}
 
 	newDB := &gorpish.DB{DbMap: gorpMap}
 
