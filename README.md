@@ -13,7 +13,7 @@ func NewDB() *gorpish.DB {
     return &gorpish.DB{DbMap: gorpMap}
 }
 
-db := NewDB()
+db := NewDB(gorp.PostgresDialect{})
 // Use the db as a normal gorp.DbMap
 ```
 
